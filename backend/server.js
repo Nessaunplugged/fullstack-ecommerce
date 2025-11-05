@@ -45,25 +45,26 @@ app.get("/api/test", (req, res) => {
 // Test signup endpoint
 app.post("/api/test-signup", async (req, res) => {
   try {
-    console.log("Received signup request:", req.body);
+    console.log("Headers:", req.headers);
+    console.log("Body:", req.body);
+    console.log("Raw body type:", typeof req.body);
+    
+    if (!req.body) {
+      return res.status(400).json({ message: "No body received" });
+    }
+    
     const { name, email, password } = req.body;
     
     if (!name || !email || !password) {
-      return res.status(400).json({ message: "All fields required" });
+      return res.status(400).json({ 
+        message: "All fields required",
+        received: { name, email, password: password ? "[hidden]" : undefined }
+      });
     }
     
-    // Import User model
-    const User = (await import('./models/user.model.js')).default;
-    
-    const userExists = await User.findOne({ email });
-    if (userExists) {
-      return res.status(400).json({ message: "User already exists" });
-    }
-    
-    const user = await User.create({ name, email, password });
     res.json({ 
-      message: "User created successfully", 
-      user: { id: user._id, name: user.name, email: user.email }
+      message: "Test successful - body parsed correctly", 
+      data: { name, email }
     });
   } catch (error) {
     console.log("Test signup error:", error);
