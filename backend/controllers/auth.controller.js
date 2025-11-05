@@ -37,12 +37,23 @@ const setCookies = (res, accessToken, refreshToken) => {
 };
 
 export const signup = async (req, res) => {
+  console.log('Headers:', req.headers);
+  console.log('Body:', req.body);
+  console.log('Body type:', typeof req.body);
+  
+  if (!req.body) {
+    return res.status(400).json({ message: "No request body received" });
+  }
+  
   const { email, password, name } = req.body;
   console.log('Signup attempt:', { email, name, passwordLength: password?.length });
   
   try {
     if (!email || !password || !name) {
-      return res.status(400).json({ message: "All fields are required" });
+      return res.status(400).json({ 
+        message: "All fields are required",
+        received: { name, email, password: password ? "[hidden]" : undefined }
+      });
     }
     
     const userExists = await User.findOne({ email });
