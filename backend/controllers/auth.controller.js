@@ -64,13 +64,20 @@ export const signup = async (req, res) => {
     
     console.log('Creating user...');
     const user = await User.create({ name, email, password });
-    console.log('User created:', user._id);
+    console.log('User created successfully:', user._id);
 
     // authenticate
+    console.log('Generating tokens...');
     const { accessToken, refreshToken } = generateTokens(user._id);
+    console.log('Tokens generated');
+    
+    console.log('Storing refresh token...');
     await storeRefreshToken(user._id, refreshToken);
+    console.log('Refresh token stored');
 
+    console.log('Setting cookies...');
     setCookies(res, accessToken, refreshToken);
+    console.log('Cookies set');
 
     res.status(201).json({
       _id: user._id,
