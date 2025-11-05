@@ -40,13 +40,22 @@ const setCookies = (res, accessToken, refreshToken) => {
 
 export const signup = async (req, res) => {
   const { email, password, name } = req.body;
+  console.log('Signup attempt:', { email, name, passwordLength: password?.length });
+  
   try {
+    if (!email || !password || !name) {
+      return res.status(400).json({ message: "All fields are required" });
+    }
+    
     const userExists = await User.findOne({ email });
 
     if (userExists) {
       return res.status(400).json({ message: "User already exists" });
     }
+    
+    console.log('Creating user...');
     const user = await User.create({ name, email, password });
+    console.log('User created:', user._id);
 
     // authenticate
     const { accessToken, refreshToken } = generateTokens(user._id);
@@ -62,6 +71,7 @@ export const signup = async (req, res) => {
     });
   } catch (error) {
     console.log("Error in signup controller", error.message);
+    console.log("Full error:", error);
     res.status(500).json({ message: error.message });
   }
 };
