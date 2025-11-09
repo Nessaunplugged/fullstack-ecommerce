@@ -56,11 +56,16 @@ export const signup = async (req, res) => {
       });
     }
     
+    console.log('Checking if user exists...');
     const userExists = await User.findOne({ email });
+    console.log('User exists check result:', !!userExists);
 
     if (userExists) {
+      console.log('User already exists, returning error');
       return res.status(400).json({ message: "User already exists" });
     }
+    
+    console.log('User does not exist, proceeding with creation...');
     
     console.log('Creating user...');
     const user = await User.create({ name, email, password });
