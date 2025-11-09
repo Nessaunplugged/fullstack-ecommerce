@@ -28,13 +28,13 @@ export const createCheckoutSession = async (req, res) => {
     let totalAmount = 0;
 
     const lineItems = products.map((product) => {
-      const amount = Math.round(product.price); // price is already in cents from frontend
+      const amount = Math.round(product.price * 100); // Convert dollars to cents
       totalAmount += amount * product.quantity;
       
       console.log("Processing product:", {
         name: product.name,
         price: product.price,
-        image: product.image,
+        priceInCents: amount,
         quantity: product.quantity
       });
 
@@ -44,7 +44,7 @@ export const createCheckoutSession = async (req, res) => {
           product_data: {
             name: product.name,
           },
-          unit_amount: Math.max(50, Math.round(amount / 100)), // Convert to USD cents, minimum 50 cents
+          unit_amount: Math.max(50, amount), // Price in cents, minimum 50 cents
         },
         quantity: product.quantity || 1,
       };
