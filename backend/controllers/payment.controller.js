@@ -28,7 +28,7 @@ export const createCheckoutSession = async (req, res) => {
     let totalAmount = 0;
 
     const lineItems = products.map((product) => {
-      const amount = Math.round(product.price * 100); // Convert dollars to cents
+      const amount = Math.round(product.price); // Price is already in kobo
       totalAmount += amount * product.quantity;
       
       console.log("Processing product:", {
