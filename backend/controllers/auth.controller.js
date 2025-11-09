@@ -99,21 +99,36 @@ export const signup = async (req, res) => {
 
 export const login = async (req, res) => {
   try {
+    console.log('Login attempt:', req.body);
     const { email, password } = req.body;
+    
+    console.log('Finding user with email:', email);
     const user = await User.findOne({ email });
+    console.log('User found:', !!user);
+    
+    if (user) {
+      console.log('Comparing password...');
+      const passwordMatch = await user.comparePassword(password);
+      console.log('Password match:', passwordMatch);
+      
+      if (passwordMatch) {
+        console.log('Login successful, generating tokens...');
+        const { accessToken, refreshToken } = generateTokens(user._id);
+        await storeRefreshToken(user._id, refreshToken);
+        setCookies(res, accessToken, refreshToken);
 
-    if (user && (await user.comparePassword(password))) {
-      const { accessToken, refreshToken } = generateTokens(user._id);
-      await storeRefreshToken(user._id, refreshToken);
-      setCookies(res, accessToken, refreshToken);
-
-      res.json({
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-      });
+        res.json({
+          _id: user._id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+        });
+      } else {
+        console.log('Password mismatch');
+        res.status(401).json({ message: "Invalid email or password" });
+      }
     } else {
+      console.log('User not found');
       res.status(401).json({ message: "Invalid email or password" });
     }
   } catch (error) {
